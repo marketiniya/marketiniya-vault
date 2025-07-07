@@ -3,7 +3,8 @@ package com.marketiniya.vault.service.impl;
 import com.google.cloud.secretmanager.v1.AccessSecretVersionResponse;
 import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
 import com.google.cloud.secretmanager.v1.SecretVersionName;
-import com.marketiniya.vault.model.SecretResponse;
+import com.marketiniya.vault.constants.SecretNames;
+import com.marketiniya.vault.model.SecretsResponse;
 import com.marketiniya.vault.service.SecretService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,20 +28,38 @@ public class GoogleSecretManagerService implements SecretService {
     }
 
     @Override
-    public SecretResponse getSecret(String secretName, String version) {
+    public SecretsResponse getSecrets() {
+        logger.info("🚀 Retrieving all secrets");
+        String prodApiKey = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_API_KEY);
+        String prodAppId = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_APP_ID);
+        String prodAuthDomain = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_AUTH_DOMAIN);
+        String prodMessagingSenderId = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_MESSAGING_SENDER_ID);
+        String prodProjectId = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_PROJECT_ID);
+        String prodStorageBucket = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_STORAGE_BUCKET);
+
+        String wipApiKey = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_API_KEY);
+        String wipAppId = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_APP_ID);
+        String wipAuthDomain = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_AUTH_DOMAIN);
+        String wipMeasurementId = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_MEASUREMENT_ID);
+        String wipMessagingSenderId = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_MESSAGING_SENDER_ID);
+        String wipProjectId = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_PROJECT_ID);
+        String wipStorageBucket = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_STORAGE_BUCKET);
+        logger.info("✅ Successfully retrieved all secrets");
+
+        return new SecretsResponse(
+                prodApiKey, prodAppId, prodAuthDomain, prodMessagingSenderId, prodProjectId, prodStorageBucket,
+                wipApiKey, wipAppId, wipAuthDomain, wipMeasurementId, wipMessagingSenderId, wipProjectId, wipStorageBucket
+        );
+    }
+
+    private String getSecretValue(String secretName) {
         try {
-            String currentVersion = (version == null || version.trim().isEmpty()) ? LATEST_VERSION : version;
-
-            SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretName, currentVersion);
-
+            SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretName, LATEST_VERSION);
             AccessSecretVersionResponse response = client.accessSecretVersion(secretVersionName);
-            String secretValue = response.getPayload().getData().toStringUtf8();
-
-            logger.info("✅ Successfully retrieved secret: {}", secretName);
-            return SecretResponse.success(secretName, secretValue, currentVersion);
+            return response.getPayload().getData().toStringUtf8();
         } catch (Exception e) {
-            logger.error("❌ Failed to retrieve secret: {} version: {} - Error: {}", secretName, version, e.getMessage());
-            return SecretResponse.notFound(secretName);
+            logger.warn("⚠️ Failed to retrieve secret: {} - Error: {}", secretName, e.getMessage());
+            return null;
         }
     }
 }

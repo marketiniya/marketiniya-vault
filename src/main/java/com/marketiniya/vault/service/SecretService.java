@@ -1,7 +1,7 @@
 package com.marketiniya.vault.service;
 
-import com.marketiniya.vault.model.SecretResponse;
+import com.marketiniya.vault.model.SecretsResponse;
 
 public interface SecretService {
-    SecretResponse getSecret(String secretName, String version);
+    SecretsResponse getSecrets();
 }
