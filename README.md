@@ -6,7 +6,7 @@ Secure proxy service for Firebase secrets from Google Cloud Secret Manager with 
 
 - 🔐 API key authentication
 - ☁️ Google Secret Manager integration
-- 🚀 In-memory caching (100x faster)
+- 🚀 In-memory caching
 - 🔥 All Firebase secrets in one call
 
 ## Architecture
@@ -76,25 +76,6 @@ GET /api/vault/secrets
 Headers: X-API-Key: your-api-key
 ```
 
-**Response:**
-```json
-{
-  "MARKETINYA_PROD_WEB_FIREBASE_API_KEY": "your-prod-api-key",
-  "MARKETINYA_PROD_WEB_FIREBASE_APP_ID": "your-prod-app-id",
-  "MARKETINYA_PROD_WEB_FIREBASE_AUTH_DOMAIN": "your-prod-auth-domain",
-  "MARKETINYA_PROD_WEB_FIREBASE_MESSAGING_SENDER_ID": "your-prod-sender-id",
-  "MARKETINYA_PROD_WEB_FIREBASE_PROJECT_ID": "your-prod-project-id",
-  "MARKETINYA_PROD_WEB_FIREBASE_STORAGE_BUCKET": "your-prod-storage-bucket",
-  "MARKETINYA_WIP_WEB_FIREBASE_API_KEY": "your-wip-api-key",
-  "MARKETINYA_WIP_WEB_FIREBASE_APP_ID": "your-wip-app-id",
-  "MARKETINYA_WIP_WEB_FIREBASE_AUTH_DOMAIN": "your-wip-auth-domain",
-  "MARKETINYA_WIP_WEB_FIREBASE_MEASUREMENT_ID": "your-wip-measurement-id",
-  "MARKETINYA_WIP_WEB_FIREBASE_MESSAGING_SENDER_ID": "your-wip-sender-id",
-  "MARKETINYA_WIP_WEB_FIREBASE_PROJECT_ID": "your-wip-project-id",
-  "MARKETINYA_WIP_WEB_FIREBASE_STORAGE_BUCKET": "your-wip-storage-bucket"
-}
-```
-
 ### Cache Management
 
 Clear the in-memory cache to force fresh retrieval from Google Secret Manager.
@@ -124,14 +105,6 @@ GET /actuator/health
 
 ## Performance
 
-### Intelligent Caching
-
-The application implements smart in-memory caching for optimal performance:
-
-- **First request**: ~500ms (retrieves from Google Secret Manager)
-- **Cached requests**: ~5ms (retrieves from memory)
-- **Performance gain**: 100x faster for subsequent requests!
-
 ### Cache Behavior
 
 - **Automatic caching**: All secrets are cached after first retrieval
@@ -158,30 +131,11 @@ GOOGLE_CLOUD_PROJECT_ID=your-google-cloud-project-id
 VAULT_API_KEY=your-secure-api-key
 ```
 
-### Firebase Secret Naming Convention
-
-Store Firebase credentials in Google Secret Manager using these naming patterns:
-
-**WIP Environment:**
-- `firebase-wip-api-key`
-- `firebase-wip-app-id`
-- `firebase-wip-messaging-sender-id`
-- `firebase-wip-project-id`
-- `firebase-wip-auth-domain`
-- `firebase-wip-storage-bucket`
-- `firebase-wip-measurement-id`
-
-**PROD Environment:**
-- Web: `firebase-prod-api-key`, `firebase-prod-app-id`, etc.
-- Android: `firebase-prod-android-api-key`, `firebase-prod-android-app-id`, etc.
-- iOS/macOS: `firebase-prod-ios-api-key`, `firebase-prod-ios-app-id`, `firebase-prod-ios-bundle-id`, etc.
-- Windows: `firebase-prod-windows-app-id`, etc.
-
 ## Running the Application
 
 ### Prerequisites
 - Java 21
-- Maven 3.6+
+- Gradle 8.5+
 - Google Cloud credentials configured
 
 ### Local Development
