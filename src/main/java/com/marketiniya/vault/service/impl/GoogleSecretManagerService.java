@@ -32,14 +32,12 @@ public class GoogleSecretManagerService implements SecretService {
             String currentVersion = (version == null || version.trim().isEmpty()) ? LATEST_VERSION : version;
 
             SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretName, currentVersion);
-            logger.info("📋 Secret Resource Name: {}", secretVersionName.toString());
 
             AccessSecretVersionResponse response = client.accessSecretVersion(secretVersionName);
             String secretValue = response.getPayload().getData().toStringUtf8();
 
             logger.info("✅ Successfully retrieved secret: {}", secretName);
             return SecretResponse.success(secretName, secretValue, currentVersion);
-
         } catch (Exception e) {
             logger.error("❌ Failed to retrieve secret: {} version: {} - Error: {}", secretName, version, e.getMessage());
             return SecretResponse.notFound(secretName);

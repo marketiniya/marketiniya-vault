@@ -27,8 +27,7 @@ public class VaultController {
             @RequestParam @NotBlank String name,
             @RequestParam(required = false) String version) {
 
-        logger.info("🚀 API Request: GET /api/vault/secrets?name={}&version={}", name, version != null ? version : "latest");
-
+        logger.info("🚀 API Request: GET /api/vault/secrets?name={}", name);
         SecretResponse response = secretService.getSecret(name, version);
         return buildResponse(response);
     }
