@@ -1,0 +1,30 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: marketiniya-vault
+  cache:
+    type: simple
+
+google:
+  cloud:
+    project-id: ${GOOGLE_CLOUD_PROJECT_ID}
+
+vault:
+  api:
+    key: ${VAULT_API_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.marketiniya.vault: INFO
+    com.google.cloud: WARN
