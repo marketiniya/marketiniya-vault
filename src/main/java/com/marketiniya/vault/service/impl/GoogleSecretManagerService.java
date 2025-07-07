@@ -9,6 +9,7 @@ import com.marketiniya.vault.service.SecretService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,8 +29,9 @@ public class GoogleSecretManagerService implements SecretService {
     }
 
     @Override
+    @Cacheable(value = "secrets", key = "'all-secrets'")
     public SecretsResponse getSecrets() {
-        logger.info("🚀 Retrieving all secrets");
+        logger.info("🚀 Retrieving all secrets from Google Secret Manager (not cached)");
         String prodApiKey = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_API_KEY);
         String prodAppId = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_APP_ID);
         String prodAuthDomain = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_AUTH_DOMAIN);
@@ -44,7 +46,7 @@ public class GoogleSecretManagerService implements SecretService {
         String wipMessagingSenderId = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_MESSAGING_SENDER_ID);
         String wipProjectId = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_PROJECT_ID);
         String wipStorageBucket = getSecretValue(SecretNames.MARKETINYA_WIP_WEB_FIREBASE_STORAGE_BUCKET);
-        logger.info("✅ Successfully retrieved all secrets");
+        logger.info("✅ Successfully retrieved all secrets from Google Secret Manager and cached them");
 
         return new SecretsResponse(
                 prodApiKey, prodAppId, prodAuthDomain, prodMessagingSenderId, prodProjectId, prodStorageBucket,
