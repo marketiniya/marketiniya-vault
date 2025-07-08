@@ -10,6 +10,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/vault")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Validated
 public class VaultController {
     private final SecretService secretService;

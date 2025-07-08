@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: marketiniya-vault-test
+  cache:
+    type: simple
+
+google:
+  cloud:
+    project-id: test-project
+
+vault:
+  api:
+    key: test-api-key
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.marketiniya.vault: INFO
