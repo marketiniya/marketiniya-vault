@@ -1,15 +1,18 @@
 package com.marketiniya.vault.service.impl;
 
+import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.secretmanager.v1.AccessSecretVersionResponse;
 import com.google.cloud.secretmanager.v1.SecretManagerServiceClient;
 import com.google.cloud.secretmanager.v1.SecretVersionName;
 import com.marketiniya.vault.constants.SecretNames;
+import com.marketiniya.vault.exception.VaultException;
 import com.marketiniya.vault.model.SecretsResponse;
 import com.marketiniya.vault.service.SecretService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,20 +21,18 @@ public class GoogleSecretManagerService implements SecretService {
     private static final Logger logger = LoggerFactory.getLogger(GoogleSecretManagerService.class);
     private static final String LATEST_VERSION = "latest";
 
+    @Value("${google.cloud.project-id}")
+    private String projectId;
     private final SecretManagerServiceClient client;
-    private final String projectId;
 
-    public GoogleSecretManagerService(
-            SecretManagerServiceClient client,
-            @Value("${google.cloud.project-id}") String projectId) {
+    public GoogleSecretManagerService(SecretManagerServiceClient client) {
         this.client = client;
-        this.projectId = projectId;
     }
 
     @Override
     @Cacheable(value = "secrets", key = "'all-secrets'")
     public SecretsResponse getSecrets() {
-        logger.info("🚀 Retrieving all secrets from Google Secret Manager (not cached)");
+        logger.info("🔄 Retrieving all secrets from Google Secret Manager (not cached)");
         String prodApiKey = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_API_KEY);
         String prodAppId = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_APP_ID);
         String prodAuthDomain = getSecretValue(SecretNames.MARKETINYA_PROD_WEB_FIREBASE_AUTH_DOMAIN);
@@ -60,8 +61,13 @@ public class GoogleSecretManagerService implements SecretService {
             AccessSecretVersionResponse response = client.accessSecretVersion(secretVersionName);
             return response.getPayload().getData().toStringUtf8();
         } catch (Exception e) {
-            logger.warn("⚠️ Failed to retrieve secret: {} - Error: {}", secretName, e.getMessage());
-            return null;
+            logger.error("❌ Failed to retrieve secret '{}' from project '{}': {}", secretName, projectId, e.getMessage());
+
+            if (e instanceof ApiException apiException) {
+                throw new VaultException(apiException.getMessage(), apiException.getStatusCode().getCode().getHttpStatusCode());
+            }
+
+            throw new VaultException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 }
